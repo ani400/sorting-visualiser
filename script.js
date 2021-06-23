@@ -57,32 +57,32 @@ function disableSort() {
 }
 
 
-async function partition(l, r) {
-    var p = l;
-    while (l < r) {
-        while (arr[l] < arr[p]) {
-            l++;
-        }
-        while (arr[r] > arr[p]) {
-            r--;
-        }
-        if (l < r)
-            swap(l, r);
-    }
-    swap(p, r);
-    return r;
-}
+// async function partition(l, r) {
+//     var p = l;
+//     while (l < r) {
+//         while (arr[l] < arr[p]) {
+//             l++;
+//         }
+//         while (arr[r] > arr[p]) {
+//             r--;
+//         }
+//         if (l < r)
+//             swap(l, r);
+//     }
+//     swap(p, r);
+//     return r;
+// }
 
 
-async function quickSort(l, r) {
-    if (l < r) {
-        var p = await partition(l, r);
-        printRangeCurr(l, r, p);
-        await sleep(delay);
-        await quickSort(l, p - 1);
-        await quickSort(p + 1, r);
-    }
-}
+// async function quickSort(l, r) {
+//     if (l < r) {
+//         var p = await partition(l, r);
+//         printRangeCurr(l, r, p);
+//         await sleep(delay);
+//         await quickSort(l, p - 1);
+//         await quickSort(p + 1, r);
+//     }
+// }
 
 // function updateDelay(val) {
 //     delay = val * multiplier;
@@ -162,35 +162,35 @@ function selectionSort(iter) {
     }
 }
 
-async function heapify(n, i) {
-    var largest = i; // Initialize largest as root 
-    var l = 2 * i + 1; // left = 2*i + 1 
-    var r = 2 * i + 2; // right = 2*i + 2 
-    if (l < n && arr[l] > arr[largest])
-        largest = l;
-    if (r < n && arr[r] > arr[largest])
-        largest = r;
-    if (largest != i) {
-        swap(i, largest);
-        await heapify(n, largest);
-    }
-}
+// async function heapify(n, i) {
+//     var largest = i; // Initialize largest as root 
+//     var l = 2 * i + 1; // left = 2*i + 1 
+//     var r = 2 * i + 2; // right = 2*i + 2 
+//     if (l < n && arr[l] > arr[largest])
+//         largest = l;
+//     if (r < n && arr[r] > arr[largest])
+//         largest = r;
+//     if (largest != i) {
+//         swap(i, largest);
+//         await heapify(n, largest);
+//     }
+// }
 
-async function heapSort(n) {
-    var i;
-    for (i = n / 2 - 1; i >= 0; i--)
-        await heapify(n, i);
-    printRangeCurr(0, i, n);
-    await sleep(delay / 2);
-    for (i = n - 1; i >= 0; i--) {
-        swap(0, i);
-        await heapify(i, 0, i);
-        printRangeCurr(0, i, i);
-        await sleep(delay / 2);
-    }
-    printChartOnly();
-    finishSort();
-}
+// async function heapSort(n) {
+//     var i;
+//     for (i = n / 2 - 1; i >= 0; i--)
+//         await heapify(n, i);
+//     printRangeCurr(0, i, n);
+//     await sleep(delay / 2);
+//     for (i = n - 1; i >= 0; i--) {
+//         swap(0, i);
+//         await heapify(i, 0, i);
+//         printRangeCurr(0, i, i);
+//         await sleep(delay / 2);
+//     }
+//     printChartOnly();
+//     finishSort();
+// }
 
 
 
