@@ -1,230 +1,340 @@
-const canvas = document.querySelector('canvas');
-const c = canvas.getContext('2d');
-//get DPI
-let dpi = window.devicePixelRatio;
-// canvas.width = 300, canvas.height = 150
-function fix_dpi() {
-    //get CSS height
-    //the + prefix casts it to an integer
-    //the slice method gets rid of "px"
-    let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
-    //get CSS width
-    let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
-    //scale the canvas
-    canvas.setAttribute('height', style_height * dpi);
-    canvas.setAttribute('width', style_width * dpi);
-}
-fix_dpi();
+var arr = [];
+var play = false;
 
-window.addEventListener('resize',
-function(e){
-    c.clearRect(0, 0, canvas.width, canvas.height);
-    onStart();
-});
+var delay = 50;
+var iter = [0]
+var multiplier = 1;
 
-// alert("This project is best visualised in full screen.")
-let numberArray = [];
-let num;
-let passes;
-let comparisons;
-let swaps;
-let i;
-let game;
-let activeTab = null;
+// updateDelay(document.getElementById("delay-slider").value);
+updateSize(document.getElementById("number-slider").value);
+updateSizeValue(document.getElementById("number-slider").value);
 
-const pass = document.querySelector('.passes');
-const compare = document.querySelector('.comparisons');
-const swap = document.querySelector('.swaps');
+var l, r;
+async function sort() {
+    togglePlay();
+    if (play) {
+        // delay = document.getElementById("delay-slider").value * multiplier;
+        var selection = document.getElementsByTagName("select")[0].selectedIndex
+        switch (parseInt(selection)) {
+            case 0:
+                selectionSort(iter);
+                break;
+            case 1:
+                BubbleSort(iter);
+                break;
+            case 2:
+                iter[0] += 1;
+                insertionSort(iter);
+                break;
+            case 3:
+                disableSort();
+                mergeSort(0, arr.length - 1);
+                break;
+            case 4:
+                disableSort();
+                await quickSort(0, arr.length - 1);
+                printChartOnly();
+                finishSort();
+                break;
 
-function randomIntFromRange(min, max){
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-const alpha = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'];
-let randomColor;
-function randomColorGenerator(){
-    randomColor = '#';
-    for(let i=0; i<6; i++){
-        randomColor += alpha[Math.floor(Math.random() * alpha.length)];
+            case 5:
+                disableSort();
+                heapSort(arr.length);
+                console.log(arr);
+                break;
+        }
     }
-    return randomColor;
 }
 
-let unit = { // Defines one square box
-    x: canvas.width/50,
-    y: canvas.height/50
+function enableSort() {
+    document.getElementById("sort-btn").innerHTML = "SORT";
+    document.getElementById("sort-btn").removeAttribute("disabled");
 }
 
-// Bubble Sort
-    const bubble = document.querySelector('.bubble');
-    bubble.addEventListener('click',
-    function(){
-        for(let i=0; i<50; i++){
-            numberArray[i] = {
-                num: randomIntFromRange(1, 48),
-                color: randomColorGenerator()
-            };
+function disableSort() {
+    document.getElementById("sort-btn").innerHTML = "DISABLED";
+    document.getElementById("sort-btn").setAttribute("disabled", null);
+}
+
+
+async function partition(l, r) {
+    var p = l;
+    while (l < r) {
+        while (arr[l] < arr[p]) {
+            l++;
         }
-        i = 0;
-        passes = 0;
-        comparisons = 0;
-        swaps = 0;
-        pass.innerHTML = '';
-        compare.innerHTML = '';
-        swap.innerHTML = '';
-        activeTab = 'bubble';
-        game = setInterval(BubbleSort, 1000);
-    });
-
-    function BubbleSort(){
-        draw();
-        if(i == 49){
-            clearInterval(game);
+        while (arr[r] > arr[p]) {
+            r--;
         }
-        for(let j=0; j<numberArray.length-i-1; j++){
-            if(numberArray[j].num > numberArray[j+1].num){
-                let temp1 = numberArray[j].num;
-                numberArray[j].num = numberArray[j+1].num;
-                numberArray[j+1].num = temp1;
+        if (l < r)
+            swap(l, r);
+    }
+    swap(p, r);
+    return r;
+}
 
-                let temp2 = numberArray[j].color;
-                numberArray[j].color = numberArray[j+1].color;
-                numberArray[j+1].color = temp2;
 
-                swaps++;
+async function quickSort(l, r) {
+    if (l < r) {
+        var p = await partition(l, r);
+        printRangeCurr(l, r, p);
+        await sleep(delay);
+        await quickSort(l, p - 1);
+        await quickSort(p + 1, r);
+    }
+}
+
+// function updateDelay(val) {
+//     delay = val * multiplier;
+//     document.getElementById('delayValue').innerHTML = "Delay: " + val * multiplier + " ms";
+// }
+
+function updateSize(val) {
+    iter[0] = 0;
+    arr = [];
+    for (var i = 0; i < val; i++) {
+        arr.push(i + 1);
+    }
+    max = Math.max(...arr);
+    arr = shuffle();
+    finishSort();
+}
+
+function updateSizeValue(val) {
+    document.getElementById('number-value').innerHTML = "Size: " + val;
+}
+
+function shuffleArray() {
+    finishSort();
+    arr = shuffle();
+    printChartOnly();
+}
+
+function shuffle() {
+    var m = arr.length, t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = arr[m];
+        arr[m] = arr[i];
+        arr[i] = t;
+    }
+    return arr;
+}
+
+function togglePlay() {
+    play = !play;
+    document.getElementById("sort-btn").innerHTML = play ? "Pause" : "Sort";
+}
+
+
+function finishSort() {
+    printChartOnly();
+    iter[0] = 0;
+    enableSort();
+    play = false;
+}
+
+
+function swap(i1, i2) {
+    temp = arr[i1];
+    arr[i1] = arr[i2];
+    arr[i2] = temp;
+}
+
+function selectionSort(iter) {
+    var j, pos;
+    if (iter[0] >= arr.length) {
+        finishSort();
+        return;
+    } else {
+        pos = iter[0];
+        for (j = iter[0] + 1; j < arr.length; j++) {
+            if (arr[j] < arr[pos]) {
+                pos = j;
             }
-            comparisons++;
         }
-        i++;
-        passes++;
-    }
-
-// Selection Sort
-    const selection = document.querySelector('.selection');
-    selection.addEventListener('click',
-    function(){
-        for(let i=0; i<50; i++){
-            numberArray[i] = {
-                num: randomIntFromRange(1, 48),
-                color: randomColorGenerator()
-            };
+        printRangeCurr(iter[0], arr.length - 1, pos);
+        swap(iter[0], pos);
+        if (play) {
+            iter[0] += 1;
+            setTimeout(() => selectionSort(iter), delay);
         }
-        i = 0;
-        passes = 0;
-        comparisons = 0;
-        swaps = 0;
-        pass.innerHTML = '';
-        compare.innerHTML = '';
-        swap.innerHTML = '';
-        activeTab = 'selection';
-        game = setInterval(SelectionSort, 1000);
-    });
-
-    function SelectionSort(){
-        draw();
-        if(i == 49)
-            clearInterval(game);
-        let x = i;
-        for(let j=i+1; j<numberArray.length; j++){
-            if(numberArray[x].num > numberArray[j].num){
-                x = j;
-            }
-            comparisons++;
-        }
-        if(x != i){
-            let temp1 = numberArray[x].num;
-            numberArray[x].num = numberArray[i].num;
-            numberArray[i].num = temp1;
-
-            let temp2 = numberArray[x].color;
-            numberArray[x].color = numberArray[i].color;
-            numberArray[i].color = temp2;
-
-            swaps++;
-        }
-        passes++;
-        i++;
-    }
-
-// Insertion Sort
-    const insertion = document.querySelector('.insertion');
-    insertion.addEventListener('click',
-    function(){
-        for(let i=0; i<50; i++){
-            numberArray[i] = {
-                num: randomIntFromRange(1, 48),
-                color: randomColorGenerator()
-            };
-        }
-        i = 1;
-        passes = 0;
-        comparisons = 0;
-        swaps = 0;
-        pass.innerHTML = '';
-        compare.innerHTML = '';
-        swap.innerHTML = '';
-        activeTab = 'insertion';
-        game = setInterval(InsertionSort, 1000);
-    });
-
-    function InsertionSort(){
-        draw();
-        if(i == 50){
-            clearInterval(game);
-        }
-        let j=i-1;
-        let x = {
-            num: numberArray[i].num,
-            color: numberArray[i].color
-        }
-        while(j>-1 && numberArray[j].num>x.num){
-            numberArray[j+1].num = numberArray[j].num;
-            numberArray[j+1].color = numberArray[j].color
-            j--;
-            swaps++;
-            comparisons++;
-        }
-        comparisons++;
-        numberArray[j+1].num = x.num;
-        numberArray[j+1].color = x.color;
-        passes++;
-        i++;
-    }
-function onStart(){
-    if(activeTab == null){
-        c.fillStyle = "black";
-        c.font = "4vh Georgia";
-        c.textAlign = "center";
-        c.fillText("Click one of the buttons below to start simulating a sorting algorithm!", canvas.width/2, canvas.height/2);
-        pass.style.display = "none";
-        compare.style.display = "none";
-        swap.style.display = "none";
-    
     }
 }
 
-onStart();
+async function heapify(n, i) {
+    var largest = i; // Initialize largest as root 
+    var l = 2 * i + 1; // left = 2*i + 1 
+    var r = 2 * i + 2; // right = 2*i + 2 
+    if (l < n && arr[l] > arr[largest])
+        largest = l;
+    if (r < n && arr[r] > arr[largest])
+        largest = r;
+    if (largest != i) {
+        swap(i, largest);
+        await heapify(n, largest);
+    }
+}
 
-function draw(){
-    pass.style.display = "flex";
-    compare.style.display = "flex";
-    swap.style.display = "flex";
-    pass.innerHTML = `<b>No. of Passes = ${passes}</b>`;
-    compare.innerHTML = `<b>Comparisons = ${comparisons}</b>`;
-    swap.innerHTML = `<b>No. of Swaps = ${swaps}</b>`;
+async function heapSort(n) {
+    var i;
+    for (i = n / 2 - 1; i >= 0; i--)
+        await heapify(n, i);
+    printRangeCurr(0, i, n);
+    await sleep(delay / 2);
+    for (i = n - 1; i >= 0; i--) {
+        swap(0, i);
+        await heapify(i, 0, i);
+        printRangeCurr(0, i, i);
+        await sleep(delay / 2);
+    }
+    printChartOnly();
+    finishSort();
+}
 
-    c.clearRect(0, 0, canvas.width, canvas.height);
-    for(let i=0; i<50; i++){
-        num = numberArray[i].num;
-        c.fillStyle = `${numberArray[i].color}`;
-        c.fillRect(i*unit.x, (50-num)*unit.y, unit.x, num*unit.y);
-        c.strokeStyle = 'black';
-        c.strokeRect(i*unit.x, (50-num)*unit.y, unit.x, num*unit.y);
-        c.fillStyle = "black";
-        c.font = "2.5vh Georgia";
-        if(num<=9)
-            c.fillText(num, i*unit.x+15, (50-num-1)*unit.y);
+
+
+function BubbleSort(iter) {
+    if (iter[0] >= arr.length - 1) {
+        finishSort();
+        return;
+    }
+    var pos = 0;
+    for (j = 0; j < arr.length; j++) {
+        if (arr[j] < arr[j - 1]) {
+            swap(j, j - 1);
+            pos = j;
+        }
+    }
+    printRangeCurr(0, pos, iter[0]);
+    if (play) {
+        iter[0] += 1;
+        setTimeout(() => BubbleSort(iter), delay);
+    }
+}
+
+function insertionSort(iter) {
+    if (iter[0] >= arr.length) {
+        finishSort();
+        return;
+    }
+    var key = arr[iter[0]];
+    var j = iter[0] - 1;
+    while (j >= 0 && arr[j] > key) {
+        arr[j + 1] = arr[j];
+        j = j - 1;
+    }
+    arr[j + 1] = key;
+    printRangeCurr(iter[0], arr.length - 1, j);
+    if (play) {
+        iter[0] += 1;
+        setTimeout(() => insertionSort(iter), delay);
+    }
+}
+
+function printChartOnly() {
+    document.getElementsByClassName("table")[0].innerHTML = "";
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        print(arr[i], max);
+    }
+}
+
+// function printChart(curr, swap) {
+//     var i;
+//     for (i = 0; i < arr.length; i++) {
+//         document.getElementsByClassName("bar")[i].setAttribute("style", "height: " + (arr[i] / max * 100) + "%;");
+//         if (i == curr) {
+//             document.getElementsByClassName("bar")[i].classList.add("curr");
+//         } else if (i == swap) {
+//             document.getElementsByClassName("bar")[i].classList.add("swap");
+//         } else {
+//             document.getElementsByClassName("bar")[i].classList.remove("swap");
+//             document.getElementsByClassName("bar")[i].classList.remove("curr");
+//         }
+
+//     }
+// }
+
+function printRange(l, r) {
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        document.getElementsByClassName("bar")[i].setAttribute("style", "height: " + (arr[i] / max * 100) + "%;");
+        if (i >= l && i <= r) {
+            document.getElementsByClassName("bar")[i].classList.add("unsorted");
+        } else {
+            document.getElementsByClassName("bar")[i].classList.remove("curr");
+            document.getElementsByClassName("bar")[i].classList.remove("unsorted");
+        }
+
+    }
+}
+
+function printRangeCurr(l, r, curr) {
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        document.getElementsByClassName("bar")[i].setAttribute("style", "height: " + (arr[i] / max * 100) + "%;");
+        if (i >= l && i <= r) {
+            document.getElementsByClassName("bar")[i].classList.add("unsorted");
+        } else {
+            document.getElementsByClassName("bar")[i].classList.remove("curr");
+            document.getElementsByClassName("bar")[i].classList.remove("unsorted");
+        }
+        if (i == curr) {
+            document.getElementsByClassName("bar")[i].classList.remove("unsorted");
+            document.getElementsByClassName("bar")[i].classList.add("curr");
+        }
+
+    }
+}
+
+function print(num, max) {
+    document.body.getElementsByClassName("table")[0].innerHTML += ("<div class='chart'><div class='bar' style='height: " + num / max * 100 + "%;'></div></div>");
+}
+
+async function merge(l, m, r) {
+    var L = [],
+        R = [],
+        i, j, k;
+    for (i = l; i <= m; i++)
+        L.push(arr[i]);
+    for (i = m + 1; i <= r; i++)
+        R.push(arr[i]);
+
+    for (i = l, j = 0, k = 0; i <= r && j <= m - l && k <= r - m - 1; i++) {
+        if (L[j] < R[k])
+            arr[i] = L[j++];
         else
-            c.fillText(num, i*unit.x+15, (50-num-1)*unit.y);
+            arr[i] = R[k++];
     }
+    while (j <= m - l) {
+        arr[i++] = L[j++];
+    }
+    while (k <= r - m - 1) {
+        arr[i++] = R[k++];
+    }
+    if (l == 0 && r == arr.length - 1) {
+        finishSort();
+    }
+}
+
+
+async function mergeSort(l, r) {
+
+    if (l < r) {
+        var m = parseInt((l + r) / 2);
+        printRange(l, r);
+        await sleep(delay / 3);
+        await mergeSort(l, m); // merge sort
+        printRange(l, m);
+        await sleep(delay / 3);
+        await mergeSort(m + 1, r);  // merge sOrt
+        printRange(m + 1, r);
+        await sleep(delay / 3);
+        await merge(l, m, r);   // finally merge them
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

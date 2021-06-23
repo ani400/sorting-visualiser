@@ -1,29 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <title>Sorting Visualisation</title>
+    <title>SORT VISUALISER</title>
+    <link href="main.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row top">
-            <div class="col md-4 passes"></div>
-            <div class="col md-4 comparisons"></div>
-            <div class="col md-4 swaps"></div>
-        </div>
-        <div class="row">
-            <canvas></canvas>
-        </div>
-        <div class="row bottom">
-            <button class="btn btn-block bubble" type="button">Bubble Sort</button>
-            <button class="btn btn-block selection">Selection Sort</button>
-            <button class="btn btn-block insertion">Insertion Sort</button>
+
+<body class="expand">
+    <div class="header-container">
+        <div class="header">
+            <div class="section" style="align-self: center;">
+                <span >SORTING VISUALISER</span>
+            </div>
+            <!-- <div class="section">
+                <input class="slider" id="delay-slider" oninput="updateDelay(this.value)" name="delay-slider"
+                    type="range" min="0" max="800" value="40" step="10"><br>
+                <label name="delay-slider" id="delayValue">Delay</label>
+            </div> -->
+            <div class="section">
+                <input class="slider" id="number-slider" onchange="updateSize(this.value)"
+                    oninput="updateSizeValue(this.value)" name="delay-slider" type="range" min="60" max="200" step="20"
+                    value="80"><br>
+                <label name="number-slider" id="number-value">Number of Elements</label>
+            </div>
+            <div class="section">
+                <select>
+                    <option value="1">Selection Sort</option>
+                    <option value="2">Bubble Sort</option>
+                    <option value="3">Insertion Sort</option>
+                    <option value="4">Merge Sort</option>
+                    <!-- <option value="4">Quick Sort</option>
+                    <option value="4">Heap Sort</option> -->
+                </select></div>
+            <div class="section">
+                <button name="sort" onclick="sort()" id="sort-btn">SORT</button>
+            </div>
+            <div class="section">
+                <button onclick="shuffleArray()">SHUFFLE</button></div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <div class="table expand"></div>
+    
 </body>
+<script src="script.js"></script>
+
 </html>
