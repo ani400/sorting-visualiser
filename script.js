@@ -328,10 +328,10 @@ async function mergeSort(l, r) {
         await mergeSort(l, m); // merge sort
         printRange(l, m);
         await sleep(delay / 3);
-        await mergeSort(m + 1, r);  // merge sOrt
+        await mergeSort(m + 1, r);  // merge sort
         printRange(m + 1, r);
         await sleep(delay / 3);
-        await merge(l, m, r);   // finally merge them
+        await merge(l, m, r);   // finally merge them 
     }
 }
 

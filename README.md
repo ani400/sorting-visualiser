@@ -2,7 +2,7 @@
 
 A simple sort visualizing app created by HTML5, CSS3 and JavaScript.
 
-App Link: https://chhotu05.github.io/sorting-visualiser/
+Web App Link: https://chhotu05.github.io/sorting-visualiser/
 
 A simple sort visualising app to visualise different kind of sort in a beautiful and intuitive manner.
 
